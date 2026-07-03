@@ -3,13 +3,13 @@ model.py
 
 Phase 3: Build the Embedding Matrix.
 
-Step 1 (done): init_embeddings()             - create and initialize W_input and W_output
-Step 2 (done): forward()                     - center word -> embedding -> raw scores over vocab
+Step 1 (done): init_embeddings()               - create and initialize W_input and W_output
+Step 2 (done): forward()                       - center word -> embedding -> raw scores over vocab
 Step 3 (done): build_negative_sampling_table() - freq^0.75 sampling distribution
 Step 4 (done): sigmoid() + negative_sampling_loss() - Phase 5 loss function
+Step 5 (done): backward() + update_weights()   - Phase 6 backprop / gradient descent
 
-Coming next (Phase 6+):
-- backprop / weight updates
+Coming next (Phase 7+):
 - training loop
 """
 
@@ -147,48 +147,66 @@ def negative_sampling_loss(h, positive_id, negative_ids, W_output):
     return total_loss
 
 
-if __name__ == "__main__":
-    vocab_size = 8
-    embedding_dim = 5
+def backward(h, center_id, positive_id, negative_ids, W_output):
+    """
+    Compute gradients for one Skip-Gram negative-sampling training pair.
 
-    W_input, W_output = init_embeddings(vocab_size, embedding_dim, seed=42)
+    Args:
+        h (np.ndarray): center word embedding, shape (embedding_dim,)
+        center_id (int): ID of the center word (row in W_input to update).
+        positive_id (int): true context word ID.
+        negative_ids (np.ndarray): sampled negative word IDs, shape (k,)
+        W_output (np.ndarray): shape (embedding_dim, vocab_size)
 
-    print("W_input shape:", W_input.shape)
-    print("W_input:\n", W_input)
-    print("\nW_output shape:", W_output.shape)
-    print("W_output:\n", W_output)
+    Returns:
+        dict with:
+            'grad_h'        : gradient for the center embedding, shape (embedding_dim,)
+            'grad_v_pos'    : gradient for W_output[:, positive_id], shape (embedding_dim,)
+            'grad_v_neg'    : gradient for W_output[:, negative_ids], shape (embedding_dim, k)
+    """
+    v_pos = W_output[:, positive_id]        # shape (embedding_dim,)
+    v_neg = W_output[:, negative_ids]        # shape (embedding_dim, k)
 
-    # Test forward pass using center word id=2 ("fox" in our earlier example)
-    center_id = 2
-    h, scores = forward(center_id, W_input, W_output)
+    score_pos = h @ v_pos
+    scores_neg = h @ v_neg                   # shape (k,)
 
-    print(f"\n--- Forward pass for center_id={center_id} ---")
-    print("Embedding (h) shape:", h.shape)
-    print("Embedding (h):", h)
-    print("\nRaw scores shape:", scores.shape)
-    print("Raw scores:", scores)
+    # "prediction - true_label" for each score
+    grad_score_pos = sigmoid(score_pos) - 1        # scalar, true label = 1
+    grad_scores_neg = sigmoid(scores_neg) - 0      # shape (k,), true label = 0
 
-    # --- Phase 5: Negative Sampling demo ---
-    # Reuse the vocab/word_counts from our running "the quick brown fox..." example
-    word_counts = {
-        "the": 2, "quick": 1, "brown": 1, "fox": 1,
-        "jumps": 1, "over": 1, "lazy": 1, "dog": 1
+    # Gradients w.r.t. W_output columns
+    grad_v_pos = grad_score_pos * h                       # shape (embedding_dim,)
+    grad_v_neg = np.outer(h, grad_scores_neg)              # shape (embedding_dim, k)
+
+    # Gradient w.r.t. h: sum of contributions from positive + all negatives
+    grad_h = grad_score_pos * v_pos + v_neg @ grad_scores_neg  # shape (embedding_dim,)
+
+    return {
+        "grad_h": grad_h,
+        "grad_v_pos": grad_v_pos,
+        "grad_v_neg": grad_v_neg,
     }
-    id_to_word = {0: "brown", 1: "dog", 2: "fox", 3: "jumps",
-                  4: "lazy", 5: "over", 6: "quick", 7: "the"}
 
-    sampling_probs = build_negative_sampling_table(word_counts, id_to_word, power=0.75)
-    print("\n--- Negative sampling distribution (freq^0.75) ---")
-    for word_id, prob in enumerate(sampling_probs):
-        print(f"  {id_to_word[word_id]:>6}: {prob:.4f}")
 
-    # Example training pair: center="fox" (id=2), true context="brown" (id=0)
-    rng = np.random.default_rng(seed=42)
-    positive_id = 0  # "brown"
-    negative_ids = sample_negatives(sampling_probs, positive_id, k=3, rng=rng)
-    print(f"\nSampled {len(negative_ids)} negatives for positive='brown':",
-          [id_to_word[i] for i in negative_ids])
+def update_weights(W_input, W_output, center_id, positive_id, negative_ids,
+                    grads, learning_rate=0.025):
+    """
+    Apply one gradient descent step to W_input and W_output, in place.
 
-    loss = negative_sampling_loss(h, positive_id, negative_ids, W_output)
-    print(f"\nLoss (center='fox', positive='brown'): {loss:.4f}")
-    print("(High loss expected — W_output is still all zeros, i.e. untrained)")
+    Args:
+        W_input (np.ndarray): shape (vocab_size, embedding_dim)
+        W_output (np.ndarray): shape (embedding_dim, vocab_size)
+        center_id (int): row of W_input to update.
+        positive_id (int): column of W_output to update (positive word).
+        negative_ids (np.ndarray): columns of W_output to update (negative words).
+        grads (dict): output of backward().
+        learning_rate (float): step size.
+
+    Returns:
+        None (W_input and W_output are updated in place).
+    """
+    W_input[center_id] -= learning_rate * grads["grad_h"]
+    W_output[:, positive_id] -= learning_rate * grads["grad_v_pos"]
+    W_output[:, negative_ids] -= learning_rate * grads["grad_v_neg"]
+
+
