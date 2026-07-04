@@ -11,7 +11,7 @@ from embedding_dim down to 2D using PCA or t-SNE, and exports
 import json
 import os
 
-from postTrain import load_embeddings
+from train import load_embeddings
 
 
 def reduce_with_tsne(W_input, n_components=2, perplexity=30, seed=42):
@@ -70,6 +70,9 @@ def export_for_visualization(coords_2d, id_to_word, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(points, f, ensure_ascii=False, indent=2)
 
+    os.makedirs(os.path.dirname("C:/Users/HP/Desktop/Word2Vec/visualization/vite-project/public"), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(points, f, ensure_ascii=False, indent=2)
     print(f"Exported {len(points)} points to: {output_path}")
 
 

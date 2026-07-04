@@ -111,7 +111,7 @@ def train(text, embedding_dim=50, window_size=2, k_negatives=5,
         "loss_history": loss_history,
     }
 
-def save_embeddings(result, output_dir="..\data\embeddings_output"):
+def save_embeddings(result, output_dir="../data/embeddings_output"):
     """
     Save trained embeddings to disk (Phase 8).
  
@@ -150,7 +150,44 @@ def save_embeddings(result, output_dir="..\data\embeddings_output"):
     print(f"Saved embeddings to: {embeddings_path}")
     print(f"Saved vocab to: {vocab_path}")    
 
-
-
-
+def load_embeddings(input_dir="../data/embeddings_output"):
+    """
+    Load previously trained embeddings from disk (counterpart to save_embeddings).
+ 
+    Reads two files:
+        - embeddings.npy  : the W_input matrix
+        - vocab.json      : word_to_id and id_to_word mappings
+ 
+    Args:
+        input_dir (str): directory containing embeddings.npy and vocab.json.
+ 
+    Returns:
+        dict with:
+            'W_input'    : loaded embedding matrix
+            'word_to_id' : word -> ID mapping
+            'id_to_word' : ID -> word mapping (keys converted back to int)
+    """
+    import os
+    import json
+ 
+    embeddings_path = os.path.join(input_dir, "embeddings.npy")
+    vocab_path = os.path.join(input_dir, "vocab.json")
+ 
+    W_input = np.load(embeddings_path)
+ 
+    with open(vocab_path, "r", encoding="utf-8") as f:
+        vocab_data = json.load(f)
+ 
+    word_to_id = vocab_data["word_to_id"]
+    # JSON saved id_to_word keys as strings — convert back to int
+    id_to_word = {int(k): v for k, v in vocab_data["id_to_word"].items()}
+ 
+    print(f"Loaded embeddings from: {embeddings_path} (shape: {W_input.shape})")
+    print(f"Loaded vocab from: {vocab_path} ({len(word_to_id)} words)")
+ 
+    return {
+        "W_input": W_input,
+        "word_to_id": word_to_id,
+        "id_to_word": id_to_word,
+    }
     

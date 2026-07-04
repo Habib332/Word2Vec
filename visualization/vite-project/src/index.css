@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+:root {
+  --bg-app: #0a0e17;
+  --bg-panel: #0d1220;
+  --bg-panel-alt: #0f1524;
+  --border-dashed: #1e5fbf;
+  --border-subtle: #1c2333;
+  --text-primary: #e6ebf5;
+  --text-muted: #6b7688;
+  --accent: #22d3ee;
+  --accent-dim: rgba(34, 211, 238, 0.15);
+  --hover-color: #f0b756;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+button, input {
+  font-family: inherit;
+}
+
+/* --- Sidebar nav items --- */
+.nav-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-primary);
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-item:hover {
+  background: rgba(230, 235, 245, 0.06);
+}
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.nav-item.active:hover {
+  background: var(--accent-dim);
+}
+
+/* --- Buttons --- */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: scale(0.94);
+}
+
+.btn-primary {
+  padding: 10px 0;
+  border-radius: 6px;
+  border: none;
+  background: var(--accent);
+  color: #00232a;
+}
+
+.btn-secondary {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  color: var(--text-primary);
+}
+
+/* --- Data readouts: mono font --- */
+.data-mono {
+  font-family: var(--font-mono);
+}
+
+/* --- Headings --- */
+.brand-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.panel-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
