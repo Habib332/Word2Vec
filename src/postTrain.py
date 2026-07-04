@@ -1,6 +1,7 @@
 import numpy as np 
+from reduce_dimensions import reduce_with_tsne, export_for_visualization
 
-def load_embeddings(input_dir="."):
+def load_embeddings(input_dir="..\data\embeddings_output"):
     """
     Load previously trained embeddings from disk (counterpart to save_embeddings).
  
@@ -135,8 +136,23 @@ def analogy(word_a, word_b, word_c, word_to_id, id_to_word, W_input, top_n=5):
 
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     
+    
+    embeddings_dir = "../data/embeddings_output"
+    loaded = load_embeddings(input_dir=embeddings_dir)
+ 
+    W_input = loaded["W_input"]
+    id_to_word = loaded["id_to_word"]
+ 
+    print(f"\nReducing {W_input.shape[0]} words from "
+          f"{W_input.shape[1]}D to 2D using t-SNE...")
+ 
+    coords_2d = reduce_with_tsne(W_input)
+ 
+    # --- Export for the React visualization ---
+    output_path = "../data/embeddings_output/embeddings_2d.json"
+    export_for_visualization(coords_2d, id_to_word, output_path)
     result = load_embeddings()
     print("\nCommands:")
     print("  similar <word>              - most similar words (cosine similarity)")

@@ -111,7 +111,7 @@ def train(text, embedding_dim=50, window_size=2, k_negatives=5,
         "loss_history": loss_history,
     }
 
-def save_embeddings(result, output_dir="."):
+def save_embeddings(result, output_dir="..\data\embeddings_output"):
     """
     Save trained embeddings to disk (Phase 8).
  
