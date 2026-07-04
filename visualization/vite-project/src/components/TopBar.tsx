@@ -24,7 +24,6 @@ export function TopBar({
         value={searchInput}
         onChange={(e) => onSearchInputChange(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
-        className="data-mono"
         style={{
           flex: 1,
           maxWidth: 400,
@@ -33,6 +32,7 @@ export function TopBar({
           border: "1px solid var(--border-subtle)",
           background: "var(--bg-panel-alt)",
           color: "var(--text-primary)",
+          fontSize: 13,
         }}
       />
     </div>

@@ -6,26 +6,25 @@ export function Sidebar({ active }: { active: string }) {
       style={{
         width: 220,
         height: "100%",
-        border: "1px dashed var(--accent)",
-        boxShadow: "0 0 12px rgba(34, 211, 238, 0.15)",
+        borderRight: "1px solid var(--border-subtle)",
         background: "var(--bg-panel)",
         display: "flex",
         flexDirection: "column",
         padding: 16,
       }}
     >
-      <div className="brand-heading" style={{ color: "var(--accent)", fontSize: 17 }}>
+      <div className="panel-heading" style={{ fontSize: 15, color: "var(--text-primary)" }}>
         LexiconExplorer
       </div>
 
       <div className="panel-heading" style={{ marginTop: 20, fontSize: 13 }}>
         Vocabulary Engine
       </div>
-      <div className="data-mono" style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 20 }}>
+      <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 20 }}>
         V2.4 HIGH-DENSITY
       </div>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {NAV_ITEMS.map((item) => (
           <div key={item} className={`nav-item ${item === active ? "active" : ""}`}>
             {item}

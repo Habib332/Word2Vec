@@ -23,7 +23,7 @@ export function ControlPanel({
         gap: 16,
       }}
     >
-      <div className="panel-heading" style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 1 }}>
+      <div className="panel-heading" style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 0.5 }}>
         MAP CONTROLS
       </div>
 
@@ -31,7 +31,7 @@ export function ControlPanel({
         <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 4 }}>
           VECTOR DENSITY
         </div>
-        <div className="data-mono" style={{ fontSize: 14 }}>{pointCount} nodes</div>
+        <div style={{ fontSize: 14 }}>{pointCount} nodes</div>
       </div>
 
       <div style={{ display: "flex", gap: 8 }}>

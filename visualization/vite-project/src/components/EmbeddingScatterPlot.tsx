@@ -5,7 +5,11 @@ const PADDING = 40;
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 40;
 const HOVER_RADIUS_PX = 10;
-const GRID_SPACING = 28; // px, dot-grid texture
+const K_NEAREST = 3;
+const MAX_POINTS_FOR_CONNECTIONS = 30000; // grid-based kNN, scales much further than brute-force
+const ANIM_DURATION = 650; // ms, per-node pop-in
+const ANIM_STAGGER_WINDOW = 900; // ms, spread of random start delays
+const LINE_EXTRA_DELAY = 150; // ms, lines appear slightly after their nodes
 
 export interface Transform {
   x: number;
@@ -21,6 +25,96 @@ interface Props {
   onCursorDataChange?: (pos: { x: number; y: number } | null) => void;
 }
 
+// Overshoots past 1 before settling back to 1 -> reads as a "pop" rather than a plain fade-in
+function easeOutBack(t: number) {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+// Grid-based approximate k-nearest-neighbors: buckets points spatially so each
+// point only checks nearby cells instead of every other point. O(n) average
+// case instead of brute force's O(n^2), so it scales to real-corpus sizes.
+function computeKNNConnections(data: Embeddings, k: number): Array<[number, number]> {
+  const n = data.length;
+  if (n < 2) return [];
+
+  const xs = data.map((d) => d.x);
+  const ys = data.map((d) => d.y);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const width = Math.max(xMax - xMin, 1e-9);
+  const height = Math.max(yMax - yMin, 1e-9);
+
+  // aim for roughly 4 points per cell on average
+  const targetCells = Math.max(1, n / 4);
+  const aspect = width / height;
+  const cellsY = Math.max(1, Math.round(Math.sqrt(targetCells / aspect)));
+  const cellsX = Math.max(1, Math.round(targetCells / cellsY));
+  const cellW = width / cellsX;
+  const cellH = height / cellsY;
+
+  const cellOf = (i: number) => {
+    const cx = Math.min(cellsX - 1, Math.floor((data[i].x - xMin) / cellW));
+    const cy = Math.min(cellsY - 1, Math.floor((data[i].y - yMin) / cellH));
+    return { cx, cy };
+  };
+
+  const grid = new Map<string, number[]>();
+  for (let i = 0; i < n; i++) {
+    const { cx, cy } = cellOf(i);
+    const key = `${cx},${cy}`;
+    if (!grid.has(key)) grid.set(key, []);
+    grid.get(key)!.push(i);
+  }
+
+  const connections = new Set<string>();
+  const neededCandidates = k * 4;
+
+  for (let i = 0; i < n; i++) {
+    const { cx, cy } = cellOf(i);
+    let radius = 1;
+    let candidates: number[] = [];
+
+    while (candidates.length < neededCandidates && radius < Math.max(cellsX, cellsY)) {
+      candidates = [];
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          const nx = cx + dx, ny = cy + dy;
+          if (nx < 0 || ny < 0 || nx >= cellsX || ny >= cellsY) continue;
+          const bucket = grid.get(`${nx},${ny}`);
+          if (bucket) candidates.push(...bucket);
+        }
+      }
+      radius++;
+    }
+
+    const dists = candidates
+      .filter((j) => j !== i)
+      .map((j) => {
+        const dx = data[i].x - data[j].x;
+        const dy = data[i].y - data[j].y;
+        return { j, d: dx * dx + dy * dy };
+      })
+      .sort((a, b) => a.d - b.d);
+
+    for (let m = 0; m < Math.min(k, dists.length); m++) {
+      const j = dists[m].j;
+      const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+      connections.add(key);
+    }
+  }
+
+  return Array.from(connections).map((key) => {
+    const [a, b] = key.split("-").map(Number);
+    return [a, b] as [number, number];
+  });
+}
+
 export function EmbeddingScatterPlot({
   searchTerm,
   transform,
@@ -33,6 +127,7 @@ export function EmbeddingScatterPlot({
   const [highlightedWord, setHighlightedWord] = useState<string | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<EmbeddingPoint | null>(null);
   const [hoverScreenPos, setHoverScreenPos] = useState<{ x: number; y: number } | null>(null);
+  const [connectionCount, setConnectionCount] = useState<number | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +135,9 @@ export function EmbeddingScatterPlot({
   const lastPointer = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
   const pulseStartRef = useRef<number>(0);
+  const mountTimeRef = useRef<number>(0);
+  const nodeDelaysRef = useRef<Float32Array | null>(null);
+  const connectionsRef = useRef<Array<[number, number]>>([]);
 
   const baseScaleRef = useRef<{
     xMin: number;
@@ -68,6 +166,22 @@ export function EmbeddingScatterPlot({
           yMin: Math.min(...ys),
           yMax: Math.max(...ys),
         };
+
+        nodeDelaysRef.current = new Float32Array(
+          json.map(() => Math.random() * ANIM_STAGGER_WINDOW)
+        );
+
+        if (json.length <= MAX_POINTS_FOR_CONNECTIONS) {
+          connectionsRef.current = computeKNNConnections(json, K_NEAREST);
+        } else {
+          console.warn(
+            `Skipping nearest-neighbor connections: ${json.length} points exceeds the ${MAX_POINTS_FOR_CONNECTIONS} cap.`
+          );
+          connectionsRef.current = [];
+        }
+        setConnectionCount(connectionsRef.current.length);
+
+        mountTimeRef.current = performance.now();
         setData(json);
         onPointCountChange?.(json.length);
       })
@@ -117,7 +231,8 @@ export function EmbeddingScatterPlot({
     (now: number) => {
       const canvas = canvasRef.current;
       const container = containerRef.current;
-      if (!canvas || !container || !data) return;
+      const delays = nodeDelaysRef.current;
+      if (!canvas || !container || !data || !delays) return;
 
       const dpr = window.devicePixelRatio || 1;
       const rect = container.getBoundingClientRect();
@@ -130,56 +245,92 @@ export function EmbeddingScatterPlot({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, rect.width, rect.height);
 
-      ctx.fillStyle = "#0a0e17";
+      ctx.fillStyle = "#0a0a0b";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
-      // dot-grid texture, screen-space, subtle
-      ctx.fillStyle = "rgba(230, 235, 245, 0.035)";
-      for (let gx = 0; gx < rect.width; gx += GRID_SPACING) {
-        for (let gy = 0; gy < rect.height; gy += GRID_SPACING) {
-          ctx.beginPath();
-          ctx.arc(gx, gy, 1, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
+      const elapsedSinceMount = now - mountTimeRef.current;
+      let stillAnimatingIn = false;
+
+      // scale factor for node radius (can overshoot past 1 briefly -> the "pop")
+      const nodeScale = (idx: number) => {
+        const t = (elapsedSinceMount - delays[idx]) / ANIM_DURATION;
+        if (t < 1) stillAnimatingIn = true;
+        const clamped = Math.min(Math.max(t, 0), 1);
+        return t <= 0 ? 0 : easeOutBack(clamped);
+      };
+
+      // separate 0-1 opacity ramp (no overshoot for alpha, only for size)
+      const nodeOpacity = (idx: number) => {
+        const t = (elapsedSinceMount - delays[idx]) / (ANIM_DURATION * 0.5);
+        return Math.min(Math.max(t, 0), 1);
+      };
 
       ctx.save();
       ctx.translate(transform.x, transform.y);
       ctx.scale(transform.k, transform.k);
 
-      for (const point of data) {
+      for (const [i, j] of connectionsRef.current) {
+        const startAfter = Math.max(delays[i], delays[j]) + LINE_EXTRA_DELAY;
+        const lineT = (elapsedSinceMount - startAfter) / ANIM_DURATION;
+        if (lineT < 1) stillAnimatingIn = true;
+        const lineProgress = easeOutCubic(Math.min(Math.max(lineT, 0), 1));
+        if (lineProgress <= 0) continue;
+
+        const a = dataToCanvas(data[i].x, data[i].y, rect.width, rect.height);
+        const b = dataToCanvas(data[j].x, data[j].y, rect.width, rect.height);
+        const endX = a.cx + (b.cx - a.cx) * lineProgress;
+        const endY = a.cy + (b.cy - a.cy) * lineProgress;
+
+        ctx.beginPath();
+        ctx.moveTo(a.cx, a.cy);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = "rgba(234, 200, 60, 0.25)";
+        ctx.lineWidth = 1 / transform.k;
+        ctx.stroke();
+      }
+
+      for (let idx = 0; idx < data.length; idx++) {
+        const point = data[idx];
+        const scale = nodeScale(idx);
+        const opacity = nodeOpacity(idx);
+        if (scale <= 0 && opacity <= 0) continue;
+
         const { cx, cy } = dataToCanvas(point.x, point.y, rect.width, rect.height);
         const isHighlighted = point.word === highlightedWord;
         const isHovered = hoveredPoint?.word === point.word;
 
         if (isHighlighted) {
           const elapsed = (now - pulseStartRef.current) / 1000;
-          const pulsePhase = (elapsed % 1.4) / 1.4; // 1.4s loop
+          const pulsePhase = (elapsed % 1.4) / 1.4;
           const pulseRadius = (6 + pulsePhase * 14) / transform.k;
-          const pulseOpacity = 0.5 * (1 - pulsePhase);
+          const pulseOpacity = 0.4 * (1 - pulsePhase);
           ctx.beginPath();
           ctx.arc(cx, cy, pulseRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(34, 211, 238, ${pulseOpacity})`;
+          ctx.strokeStyle = `rgba(217, 136, 79, ${pulseOpacity})`;
           ctx.lineWidth = 1.5 / transform.k;
           ctx.stroke();
         }
 
+        const baseR = isHighlighted ? 7 : isHovered ? 6 : 4;
+        const r = (baseR * Math.max(scale, 0)) / transform.k;
+
         ctx.beginPath();
-        const r = isHighlighted ? 7 / transform.k : isHovered ? 6 / transform.k : 4 / transform.k;
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fillStyle = isHighlighted ? "#22d3ee" : isHovered ? "#f0b756" : "#3d6f9e";
+        ctx.globalAlpha = opacity;
+        ctx.fillStyle = isHighlighted ? "#d9884f" : isHovered ? "#ffffff" : "#b8b8bf";
         ctx.fill();
+        ctx.globalAlpha = 1;
 
         if (isHighlighted) {
-          ctx.font = `500 ${12 / transform.k}px "JetBrains Mono", monospace`;
-          ctx.fillStyle = "#e6ebf5";
+          ctx.font = `500 ${12 / transform.k}px -apple-system, sans-serif`;
+          ctx.fillStyle = "#e8e8ea";
           ctx.fillText(point.word, cx + 8 / transform.k, cy + 4 / transform.k);
         }
       }
 
       ctx.restore();
 
-      if (highlightedWord) {
+      if (stillAnimatingIn || highlightedWord) {
         animationFrameRef.current = requestAnimationFrame(draw);
       }
     },
@@ -272,6 +423,9 @@ export function EmbeddingScatterPlot({
     const nearest = findNearestPoint(e.clientX, e.clientY);
     setHoveredPoint(nearest);
     setHoverScreenPos(nearest ? { x: screenX, y: screenY } : null);
+    if (nearest) {
+      animationFrameRef.current ??= requestAnimationFrame(draw);
+    }
   };
 
   const handleMouseUp = () => {
@@ -298,7 +452,6 @@ export function EmbeddingScatterPlot({
       />
       {hoveredPoint && hoverScreenPos && (
         <div
-          className="data-mono"
           style={{
             position: "absolute",
             left: hoverScreenPos.x + 12,
@@ -314,6 +467,23 @@ export function EmbeddingScatterPlot({
           }}
         >
           {hoveredPoint.word}
+        </div>
+      )}
+      {connectionCount === 0 && (
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            fontSize: 11,
+            color: "var(--text-muted)",
+            background: "var(--bg-panel-alt)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: 4,
+            padding: "4px 8px",
+          }}
+        >
+          No connections drawn (dataset too large or too small)
         </div>
       )}
     </div>

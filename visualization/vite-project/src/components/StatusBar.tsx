@@ -24,7 +24,7 @@ export function StatusBar({ cursor }: { cursor: { x: number; y: number } | null 
         />
         ENGINE ONLINE
       </div>
-      <div className="data-mono">
+      <div>
         LOC_X: {cursor ? cursor.x.toFixed(2) : "--"} &nbsp; LOC_Y:{" "}
         {cursor ? cursor.y.toFixed(2) : "--"}
       </div>
