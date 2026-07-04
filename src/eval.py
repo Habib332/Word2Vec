@@ -9,9 +9,8 @@ then lets the user query predicted context words for an input word.
 
 import numpy as np
 from preprocess import load_text8
-from train import train
+from train import train, save_embeddings
 from model import forward, sigmoid
-
 
 def predict_context(word, word_to_id, id_to_word, W_input, W_output, top_n=5):
     """
@@ -61,6 +60,7 @@ if __name__ == "__main__":
         epochs=3,
         seed=42,
     )
+    save_embeddings(result)
 
     print("\nTraining complete. Loss history:",
           [f"{l:.4f}" for l in result["loss_history"]])
@@ -80,6 +80,7 @@ if __name__ == "__main__":
             result["W_output"],
             top_n=5,
         )
+        
 
         if predictions:
             print(f"Predicted context words for '{word}':")

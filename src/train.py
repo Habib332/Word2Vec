@@ -111,6 +111,45 @@ def train(text, embedding_dim=50, window_size=2, k_negatives=5,
         "loss_history": loss_history,
     }
 
+def save_embeddings(result, output_dir="."):
+    """
+    Save trained embeddings to disk (Phase 8).
+ 
+    Saves two files:
+        - embeddings.npy  : the W_input matrix (the actual word vectors)
+        - vocab.json      : word_to_id and id_to_word mappings
+ 
+    Args:
+        result (dict): output of train() — must contain 'W_input',
+            'word_to_id', and 'id_to_word'.
+        output_dir (str): directory to save files into (default: current dir).
+ 
+    Returns:
+        None
+    """
+    import os
+    import json
+ 
+    os.makedirs(output_dir, exist_ok=True)
+ 
+    embeddings_path = os.path.join(output_dir, "embeddings.npy")
+    vocab_path = os.path.join(output_dir, "vocab.json")
+ 
+    # Save the actual vectors
+    np.save(embeddings_path, result["W_input"])
+ 
+    # Save the word <-> id mappings
+    # (id_to_word keys are ints, JSON keys must be strings — convert on save)
+    vocab_data = {
+        "word_to_id": result["word_to_id"],
+        "id_to_word": {str(k): v for k, v in result["id_to_word"].items()},
+    }
+    with open(vocab_path, "w", encoding="utf-8") as f:
+        json.dump(vocab_data, f, ensure_ascii=False, indent=2)
+ 
+    print(f"Saved embeddings to: {embeddings_path}")
+    print(f"Saved vocab to: {vocab_path}")    
+
 
 
 

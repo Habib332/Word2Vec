@@ -47,3 +47,25 @@ def generate_pairs(tokens, word_to_id, window_size=2):
             pairs.append((center_id, context_id))
 
     return pairs
+
+def load_text8(path, max_words=100_000):
+    """
+    Load a slice of the text8 corpus.
+ 
+    text8 is already lowercased with punctuation stripped, and is one
+    giant whitespace-separated stream of words (no sentence boundaries).
+ 
+    Args:
+        path (str): path to the text8 file (already unzipped).
+        max_words (int): how many words to load. Use a small slice for
+            fast experimentation — pure-Python training loops are slow
+            on the full 100M-word file.
+ 
+    Returns:
+        list[str]: list of word tokens (already clean, minimal processing needed).
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        text = f.read(max_words * 7)  # rough byte estimate; avg word ~6 chars + space
+ 
+    words = text.split()
+    return words[:max_words]
