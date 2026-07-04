@@ -48,7 +48,7 @@ def generate_pairs(tokens, word_to_id, window_size=2):
 
     return pairs
 
-def load_text8(path, max_words=100_000):
+def load_text8(path, max_words=1_000_000):
     """
     Load a slice of the text8 corpus.
  

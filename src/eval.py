@@ -43,7 +43,7 @@ def predict_context(word, word_to_id, id_to_word, W_input, W_output, top_n=5):
 if __name__ == "__main__":
     # --- Load a slice of text8 (real Wikipedia text) ---
     corpus_path = "../data/text8"
-    max_words = 100_000  # keep small for fast pure-Python training
+    max_words = 1_000_000  # keep small for fast pure-Python training
 
     print(f"Loading first {max_words} words from text8...")
     tokens = load_text8(corpus_path, max_words=max_words)
