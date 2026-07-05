@@ -1,29 +1,10 @@
-
+import { GithubIcon, LinkedinIcon } from "../components/Icons";
 
 /**
  * "About the Creators" page for the Word2Vec Visualizer.
- * Same dark theme as About.tsx (near-black bg, mono uppercase labels,
- * bordered panels, green accent), with a refreshed layout: creator cards
- * are now stacked as horizontal rows instead of side-by-side tiles, and
- * all copy is rewritten to describe this project. Inline styles only.
+ * Renders as content inside the app shell, matching ProjectInfo's
+ * container treatment so both info pages feel like the same product.
  */
-
-const colors = {
-  bg: "#0a0a0b",
-  panelBg: "#111113",
-  border: "#232327",
-  borderSubtle: "#1c1c1f",
-  textPrimary: "#e7e7ea",
-  textSecondary: "#a2a2a8",
-  textMuted: "#6b6b72",
-  accentGreen: "#3ecf6b",
-  accentGreenDim: "#1f4d31",
-  chipBg: "#14201a",
-};
-
-const fontStack =
-  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-const monoStack = "'JetBrains Mono', 'SF Mono', 'Consolas', monospace";
 
 type Creator = {
   initial: string;
@@ -34,73 +15,45 @@ type Creator = {
 };
 
 const creators: Creator[] = [
-  {
-    initial: "H",
-    name: "Hamza Zeeshan",
-    role: "CREATOR",
-    github: "#",
-    linkedin: "#",
-  },
-  {
-    initial: "H",
-    name: "Habib Ahmed",
-    role: "CREATOR",
-    github: "#",
-    linkedin: "#",
-  },
+  { initial: "H", name: "Hamza Zeeshan", role: "CREATOR", github: "#", linkedin: "#" },
+  { initial: "H", name: "Habib Ahmed", role: "CREATOR", github: "#", linkedin: "#" },
 ];
 
-const techTags = [
-  "Python",
-  "NumPy",
-  "scikit-learn",
-  "React",
-  "TypeScript",
-  "Vite",
-];
+const techTags = ["Python", "NumPy", "scikit-learn", "React", "TypeScript", "Vite"];
 
 export function AboutCreatorsPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        width: "100%",
-        background: colors.bg,
-        color: colors.textPrimary,
-        fontFamily: fontStack,
-        padding: "56px 24px 72px",
-        boxSizing: "border-box",
+        height: "100%",
+        overflowY: "auto",
+        background: "var(--bg-panel)",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: "var(--radius-md)",
       }}
     >
-      <div style={{ maxWidth: 820, margin: "0 auto" }}>
-        {/* Eyebrow + heading */}
-        <div
-          style={{
-            fontFamily: monoStack,
-            fontSize: 11,
-            letterSpacing: "0.08em",
-            color: colors.textMuted,
-            marginBottom: 8,
-          }}
-        >
-          ABOUT
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "48px 40px 64px" }}>
+        <div className="panel-heading" style={{ fontSize: 11, marginBottom: 8 }}>
+          About
         </div>
         <h1
           style={{
+            fontFamily: "var(--font-display)",
             fontSize: 30,
             fontWeight: 600,
-            letterSpacing: "-0.015em",
+            letterSpacing: "-0.02em",
             margin: "0 0 14px",
+            color: "var(--text-primary)",
           }}
         >
           About the Creators
         </h1>
         <p
           style={{
-            color: colors.textSecondary,
+            color: "var(--text-secondary)",
             fontSize: 14.5,
             lineHeight: 1.7,
-            maxWidth: 620,
+            maxWidth: 580,
             margin: "0 0 40px",
           }}
         >
@@ -109,58 +62,30 @@ export function AboutCreatorsPage() {
           scratch, then built a way to actually see what it had learned.
         </p>
 
-        {/* Creator rows */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            marginBottom: 24,
-          }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 }}>
           {creators.map((c) => (
             <CreatorRow key={c.name} creator={c} />
           ))}
         </div>
 
-        {/* About the project panel */}
         <div
           style={{
-            border: `1px solid ${colors.accentGreenDim}`,
-            borderRadius: 10,
+            border: "1px solid var(--accent-dim)",
+            borderRadius: "var(--radius-md)",
             padding: "28px 32px",
-            background: colors.panelBg,
-            boxShadow: `0 0 24px rgba(62,207,107,0.06)`,
+            background: "var(--bg-panel-alt)",
           }}
         >
-          <h2
-            style={{
-              fontFamily: monoStack,
-              fontSize: 11,
-              letterSpacing: "0.07em",
-              color: colors.textMuted,
-              textTransform: "uppercase",
-              margin: "0 0 14px",
-              fontWeight: 600,
-            }}
-          >
+          <h2 className="panel-heading" style={{ fontSize: 11, margin: "0 0 14px" }}>
             About Word2Vec Visualizer
           </h2>
-          <p
-            style={{
-              fontSize: 14,
-              lineHeight: 1.75,
-              color: colors.textSecondary,
-              margin: "0 0 22px",
-            }}
-          >
-            Word2Vec Visualizer is a from-scratch implementation of
-            Skip-Gram with Negative Sampling, trained on real Wikipedia text
-            (text8) using nothing but Python and NumPy — no PyTorch,
-            TensorFlow, or Gensim. Every 50-dimensional embedding is reduced
-            to 2D with t-SNE and rendered here as an explorable vector map,
-            so you can see which words the model learned to place close
-            together.
+          <p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--text-secondary)", margin: "0 0 22px" }}>
+            Word2Vec Visualizer is a from-scratch implementation of Skip-Gram
+            with Negative Sampling, trained on real Wikipedia text (text8)
+            using nothing but Python and NumPy — no PyTorch, TensorFlow, or
+            Gensim. Every 50-dimensional embedding is reduced to 2D with
+            t-SNE and rendered here as an explorable vector map, so you can
+            see which words the model learned to place close together.
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {techTags.map((tag) => (
@@ -169,11 +94,11 @@ export function AboutCreatorsPage() {
                 style={{
                   fontSize: 12.5,
                   fontWeight: 500,
-                  fontFamily: monoStack,
+                  fontFamily: "var(--font-mono)",
                   letterSpacing: "0.02em",
-                  color: colors.accentGreen,
-                  background: colors.chipBg,
-                  border: `1px solid ${colors.accentGreenDim}`,
+                  color: "var(--accent)",
+                  background: "var(--accent-dim)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: 999,
                   padding: "6px 14px",
                 }}
@@ -182,33 +107,6 @@ export function AboutCreatorsPage() {
               </span>
             ))}
           </div>
-        </div>
-
-        {/* Status bar, consistent with the rest of the app shell */}
-        <div
-          style={{
-            marginTop: 32,
-            paddingTop: 14,
-            borderTop: `1px solid ${colors.borderSubtle}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            fontFamily: monoStack,
-            fontSize: 11,
-            color: colors.textMuted,
-          }}
-        >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: colors.accentGreen,
-              display: "inline-block",
-            }}
-          />
-          ENGINE ONLINE
         </div>
       </div>
     </div>
@@ -224,9 +122,9 @@ function CreatorRow({ creator }: { creator: Creator }) {
         display: "flex",
         gap: 20,
         alignItems: "center",
-        background: colors.panelBg,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 10,
+        background: "var(--bg-panel-alt)",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: "var(--radius-md)",
         padding: "20px 28px",
       }}
     >
@@ -236,14 +134,15 @@ function CreatorRow({ creator }: { creator: Creator }) {
           height: 52,
           flexShrink: 0,
           borderRadius: "50%",
-          background: colors.chipBg,
-          border: `1px solid ${colors.accentGreenDim}`,
+          background: "var(--accent-dim)",
+          border: "1px solid var(--border-strong)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontSize: 19,
+          fontFamily: "var(--font-display)",
           fontWeight: 700,
-          color: colors.accentGreen,
+          color: "var(--accent)",
         }}
       >
         {creator.initial}
@@ -259,16 +158,16 @@ function CreatorRow({ creator }: { creator: Creator }) {
             marginBottom: 16,
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 600 }}>
+          <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "var(--font-display)" }}>
             {creator.name}
           </span>
           <span
             style={{
-              fontFamily: monoStack,
+              fontFamily: "var(--font-mono)",
               fontSize: 10.5,
               fontWeight: 600,
               letterSpacing: "0.06em",
-              color: colors.accentGreen,
+              color: "var(--accent)",
             }}
           >
             {creator.role}
@@ -276,36 +175,22 @@ function CreatorRow({ creator }: { creator: Creator }) {
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <a
-            href={creator.github}
-            style={{
-              fontSize: 12.5,
-              fontWeight: 600,
-              fontFamily: monoStack,
-              color: colors.textSecondary,
-              background: "transparent",
-              border: `1px solid ${colors.border}`,
-              borderRadius: 999,
-              padding: "7px 16px",
-              textDecoration: "none",
-            }}
-          >
+          <a href={creator.github} className="btn btn-secondary" style={{ textDecoration: "none", padding: "7px 16px" }}>
+            <GithubIcon />
             GitHub
           </a>
           <a
             href={creator.linkedin}
+            className="btn"
             style={{
-              fontSize: 12.5,
-              fontWeight: 600,
-              fontFamily: monoStack,
-              color: colors.accentGreen,
-              background: colors.chipBg,
-              border: `1px solid ${colors.accentGreenDim}`,
-              borderRadius: 999,
-              padding: "7px 16px",
               textDecoration: "none",
+              padding: "7px 16px",
+              color: "var(--accent)",
+              background: "var(--accent-dim)",
+              border: "1px solid var(--border-strong)",
             }}
           >
+            <LinkedinIcon />
             LinkedIn
           </a>
         </div>

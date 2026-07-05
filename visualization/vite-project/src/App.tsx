@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import "./styles/theme.css";
+
 import { Sidebar } from "./components/Sidebar";
 import { TopBar } from "./components/TopBar";
 import { ControlPanel } from "./components/ControlPanel";
@@ -38,10 +40,10 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh" }}>
+    <div style={{ display: "flex", width: "100vw", height: "100vh", background: "var(--bg)" }}>
       <Sidebar page={page} onPageChange={setPage} />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <TopBar
           searchInput={searchInput}
           onSearchInputChange={setSearchInput}
@@ -57,7 +59,20 @@ export default function App() {
             minHeight: 0,
           }}
         >
-          <div style={{ flex: 1 }}>
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              ...(page === "explore"
+                ? {
+                    background: "var(--bg-panel)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "var(--radius-md)",
+                    overflow: "hidden",
+                  }
+                : {}),
+            }}
+          >
             {page === "explore" && (
               <EmbeddingScatterPlot
                 searchTerm={searchTerm}
@@ -73,12 +88,14 @@ export default function App() {
             {page === "creators" && <AboutCreatorsPage />}
           </div>
 
-          <ControlPanel
-            pointCount={pointCount}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onReset={handleReset}
-          />
+          {page === "explore" && (
+            <ControlPanel
+              pointCount={pointCount}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onReset={handleReset}
+            />
+          )}
         </div>
 
         <StatusBar cursor={cursor} />

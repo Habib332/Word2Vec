@@ -284,7 +284,7 @@ export function EmbeddingScatterPlot({
         ctx.beginPath();
         ctx.moveTo(a.cx, a.cy);
         ctx.lineTo(endX, endY);
-        ctx.strokeStyle = "rgba(234, 200, 60, 0.25)";
+        ctx.strokeStyle = "rgba(110, 139, 255, 0.22)";
         ctx.lineWidth = 1 / transform.k;
         ctx.stroke();
       }
@@ -306,7 +306,7 @@ export function EmbeddingScatterPlot({
           const pulseOpacity = 0.4 * (1 - pulsePhase);
           ctx.beginPath();
           ctx.arc(cx, cy, pulseRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(217, 136, 79, ${pulseOpacity})`;
+          ctx.strokeStyle = `rgba(240, 163, 95, ${pulseOpacity})`;
           ctx.lineWidth = 1.5 / transform.k;
           ctx.stroke();
         }
@@ -317,13 +317,13 @@ export function EmbeddingScatterPlot({
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.globalAlpha = opacity;
-        ctx.fillStyle = isHighlighted ? "#d9884f" : isHovered ? "#ffffff" : "#b8b8bf";
+        ctx.fillStyle = isHighlighted ? "#f0a35f" : isHovered ? "#edf0f4" : "#8f95a0";
         ctx.fill();
         ctx.globalAlpha = 1;
 
         if (isHighlighted) {
           ctx.font = `500 ${12 / transform.k}px -apple-system, sans-serif`;
-          ctx.fillStyle = "#e8e8ea";
+          ctx.fillStyle = "#edf0f4";
           ctx.fillText(point.word, cx + 8 / transform.k, cy + 4 / transform.k);
         }
       }
@@ -347,14 +347,18 @@ export function EmbeddingScatterPlot({
 
   if (error) {
     return (
-      <div style={{ color: "#ef4444", padding: 16, fontSize: 14 }}>
+      <div style={{ color: "var(--danger)", padding: 16, fontSize: 14, fontFamily: "var(--font-body)" }}>
         Error loading embeddings: {error}
       </div>
     );
   }
 
   if (!data) {
-    return <div style={{ color: "var(--text-muted)", padding: 16 }}>Loading embeddings...</div>;
+    return (
+      <div style={{ color: "var(--text-muted)", padding: 16, fontFamily: "var(--font-body)", fontSize: 13.5 }}>
+        Loading embeddings…
+      </div>
+    );
   }
 
   const findNearestPoint = (clientX: number, clientY: number): EmbeddingPoint | null => {
@@ -456,14 +460,16 @@ export function EmbeddingScatterPlot({
             position: "absolute",
             left: hoverScreenPos.x + 12,
             top: hoverScreenPos.y - 10,
-            padding: "4px 8px",
-            background: "var(--bg-panel-alt)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 4,
+            padding: "5px 9px",
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-strong)",
+            borderRadius: "var(--radius-sm)",
             fontSize: 12,
+            fontFamily: "var(--font-mono)",
             color: "var(--text-primary)",
             pointerEvents: "none",
             whiteSpace: "nowrap",
+            boxShadow: "var(--shadow-pop)",
           }}
         >
           {hoveredPoint.word}
@@ -473,14 +479,16 @@ export function EmbeddingScatterPlot({
         <div
           style={{
             position: "absolute",
-            top: 12,
-            right: 12,
+            top: 14,
+            right: 14,
             fontSize: 11,
+            fontFamily: "var(--font-mono)",
+            letterSpacing: "0.01em",
             color: "var(--text-muted)",
-            background: "var(--bg-panel-alt)",
+            background: "var(--bg-elevated)",
             border: "1px solid var(--border-subtle)",
-            borderRadius: 4,
-            padding: "4px 8px",
+            borderRadius: "var(--radius-sm)",
+            padding: "5px 10px",
           }}
         >
           No connections drawn (dataset too large or too small)
