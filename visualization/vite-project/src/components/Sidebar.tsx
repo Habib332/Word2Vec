@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+import { ExploreIcon, ExportIcon, GearIcon, InfoIcon, LogoMark, TeamIcon } from "./Icons";
+
 type Page = "explore" | "project-info" | "creators";
 
-const NAV_ITEMS: { label: string; page: Page }[] = [
-  { label: "Explore", page: "explore" },
-  { label: "Project Info", page: "project-info" },
-  { label: "Creators", page: "creators" },
+const NAV_ITEMS: { label: string; page: Page; icon: ReactNode }[] = [
+  { label: "Explore", page: "explore", icon: <ExploreIcon /> },
+  { label: "Project Info", page: "project-info", icon: <InfoIcon /> },
+  { label: "Creators", page: "creators", icon: <TeamIcon /> },
 ];
 
 interface SidebarProps {
@@ -15,57 +18,74 @@ export function Sidebar({ page, onPageChange }: SidebarProps) {
   return (
     <div
       style={{
-        width: 220,
+        width: 232,
         height: "100%",
+        flexShrink: 0,
         borderRight: "1px solid var(--border-subtle)",
         background: "var(--bg-panel)",
         display: "flex",
         flexDirection: "column",
-        padding: 16,
+        padding: "20px 16px",
       }}
     >
-      <div
-        className="panel-heading"
-        style={{ fontSize: 15, color: "var(--text-primary)" }}
-      >
-        Word2Vec Visualizer
-      </div>
-
-      <div className="panel-heading" style={{ marginTop: 20, fontSize: 13 }}>
-        Vocabulary Engine
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 4px" }}>
+        <LogoMark />
+        <div
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 600,
+            fontSize: 15,
+            color: "var(--text-primary)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Word2Vec Visualizer
+        </div>
       </div>
 
       <div
         style={{
-          fontSize: 11,
-          color: "var(--text-muted)",
-          marginBottom: 20,
-        }}
-      >
-        V2.4 HIGH-DENSITY
-      </div>
-
-      <nav
-        style={{
+          marginTop: 26,
+          marginBottom: 14,
+          padding: "0 4px",
           display: "flex",
-          flexDirection: "column",
-          gap: 2,
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
+        <span className="panel-heading" style={{ fontSize: 11 }}>
+          Vocabulary Engine
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 10,
+            color: "var(--accent)",
+            background: "var(--accent-dim)",
+            borderRadius: 999,
+            padding: "2px 7px",
+            letterSpacing: "0.03em",
+          }}
+        >
+          v2.4
+        </span>
+      </div>
+
+      <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 4px" }}>
         {NAV_ITEMS.map((item) => (
           <button
             key={item.page}
             onClick={() => onPageChange(item.page)}
             className={`nav-item ${page === item.page ? "active" : ""}`}
             style={{
-              background: "none",
+              background: page === item.page ? undefined : "none",
               border: "none",
               textAlign: "left",
               cursor: "pointer",
               width: "100%",
-              padding: 0,
             }}
           >
+            {item.icon}
             {item.label}
           </button>
         ))}
@@ -74,21 +94,25 @@ export function Sidebar({ page, onPageChange }: SidebarProps) {
       <div
         style={{
           marginTop: "auto",
+          paddingTop: 16,
+          borderTop: "1px solid var(--border-subtle)",
           display: "flex",
           flexDirection: "column",
-          gap: 12,
+          gap: 10,
         }}
       >
-        <button className="btn btn-primary">EXPORT VECTORS</button>
+        <button className="btn btn-primary" style={{ width: "100%" }}>
+          <ExportIcon />
+          Export vectors
+        </button>
 
-        <div
-          style={{
-            fontSize: 13,
-            color: "var(--text-muted)",
-          }}
+        <button
+          className="nav-item"
+          style={{ background: "none", border: "none", cursor: "pointer", width: "100%" }}
         >
-          System Settings
-        </div>
+          <GearIcon />
+          System settings
+        </button>
       </div>
     </div>
   );
