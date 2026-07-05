@@ -81,9 +81,9 @@ export function ProjectInfo() {
 
             <Section title="What This Is">
               <p style={pStyle}>
-                An implementation of Word2Vec (Skip-Gram with Negative
+                This ia an implementation of Word2Vec (Skip-Gram with Negative
                 Sampling) built entirely from scratch using Python and
-                NumPy — no machine learning libraries like PyTorch,
+                NumPy with no machine learning libraries like PyTorch,
                 TensorFlow, or Gensim. Based on Mikolov et al.'s 2013 paper,{" "}
                 <em style={{ color: colors.textSecondary, fontStyle: "italic" }}>
                   "Efficient Estimation of Word Representations in Vector
@@ -94,13 +94,11 @@ export function ProjectInfo() {
 
             <Section title="Why Build It From Scratch">
               <p style={pStyle}>
-                Rather than using an existing library as a black box, this
-                project implements every piece of the algorithm manually:
-                tokenization, vocabulary building, the embedding matrices,
-                the forward pass, the negative sampling loss function,
-                backpropagation, and the training loop itself. The goal was
-                to genuinely understand how word embeddings are learned, not
-                just how to call a library function that produces them.
+                Instead of using a built-in library, this project implements
+                every step of the algorithm manually. Tokenization, vocabulary building,
+                 initializing embedding matrices, backpropagation and updating weights. The main
+                 reason to build it from scratch is to understand how word embeddings work instead of calling 
+                 a library function.
               </p>
             </Section>
 
@@ -115,29 +113,29 @@ export function ProjectInfo() {
                   <strong style={{ color: colors.textPrimary }}>
                     Training
                   </strong>{" "}
-                  — a 50-dimensional vector ("embedding") was learned for
+                  : a 50-dimensional vector ("embedding") was learned for
                   every word, based on which words tended to appear near each
                   other in the training text.
                 </li>
                 <li style={{ marginBottom: 10 }}>
                   <strong style={{ color: colors.textPrimary }}>
-                    Dimensionality reduction
+                    Reduction
                   </strong>{" "}
-                  — those 50-dimensional vectors were compressed down to 2D
+                  : those 50-dimensional vectors were compressed down to 2D
                   using t-SNE, a technique designed to keep similar vectors
                   visually close together.
                 </li>
                 <li>
                   <strong style={{ color: colors.textPrimary }}>
-                    Rendering
+                    Plotting
                   </strong>{" "}
-                  — each word is plotted at its resulting (x, y) position.
+                  : each word is plotted at its resulting (x, y) position.
                 </li>
               </ol>
               <p style={pStyle}>
                 Words positioned close together were considered similar by
-                the model — meaning they tended to occur in similar contexts
-                throughout the training text.
+                the model meaning they often occur in same context or are related
+                to each other.
               </p>
             </Section>
 
