@@ -64,3 +64,6 @@ npm run dev
 This is a pure-Python/NumPy implementation with no batching — it's built for clarity over speed. Training on the full 100M-word text8 file would take a very long time; the default setup uses a smaller slice (configurable in `evaluate.py`) to keep iteration fast while still training on real text. Increase `max_words` and `epochs` for better-quality embeddings once you're ready for a longer run.
 This trains on the first 100,000 words by default and drops you into an interactive prompt once done. Available commands:
 
+The process flow for this Project:
+<img width="2720" height="3600" alt="word2vec_project_pipeline (1)" src="https://github.com/user-attachments/assets/78ea5a8c-75ba-4f4c-af6f-7783260814d4" />
+
