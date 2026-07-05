@@ -15,8 +15,8 @@ type Creator = {
 };
 
 const creators: Creator[] = [
-  { initial: "H", name: "Hamza Zeeshan", role: "CREATOR", github: "#", linkedin: "#" },
-  { initial: "H", name: "Habib Ahmed", role: "CREATOR", github: "#", linkedin: "#" },
+  { initial: "H", name: "Hamza Zeeshan", role: "CREATOR", github: "https://github.com/hamzaTheZeeshan", linkedin: "https://www.linkedin.com/in/hamza-zeeshan-0a1407332/" },
+  { initial: "H", name: "Habib Ahmed", role: "CREATOR", github: "https://github.com/Habib332", linkedin: "https://www.linkedin.com/in/habibahmed5ba3004/" },
 ];
 
 const techTags = ["Python", "NumPy", "scikit-learn", "React", "TypeScript", "Vite"];
