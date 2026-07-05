@@ -101,18 +101,6 @@ export function Sidebar({ page, onPageChange }: SidebarProps) {
           gap: 10,
         }}
       >
-        <button className="btn btn-primary" style={{ width: "100%" }}>
-          <ExportIcon />
-          Export vectors
-        </button>
-
-        <button
-          className="nav-item"
-          style={{ background: "none", border: "none", cursor: "pointer", width: "100%" }}
-        >
-          <GearIcon />
-          System settings
-        </button>
       </div>
     </div>
   );

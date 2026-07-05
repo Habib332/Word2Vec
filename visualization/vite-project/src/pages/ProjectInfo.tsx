@@ -38,7 +38,7 @@ export function ProjectInfo() {
         <Section title="What This Is">
           <p style={pStyle}>
             An implementation of Word2Vec (Skip-Gram with Negative Sampling)
-            built entirely from scratch using Python and NumPy — no machine
+            built entirely from scratch using Python and NumPy no machine
             learning libraries like PyTorch, TensorFlow, or Gensim. Based on
             Mikolov et al.'s 2013 paper,{" "}
             <em style={{ color: "var(--text-secondary)", fontStyle: "italic" }}>
@@ -49,7 +49,7 @@ export function ProjectInfo() {
 
         <Section title="Why Build It From Scratch">
           <p style={pStyle}>
-            Rather than using an existing library as a black box, this
+            Instead of using an existing library as a black box, this
             project implements every piece of the algorithm manually:
             tokenization, vocabulary building, the embedding matrices, the
             forward pass, the negative sampling loss function,
@@ -67,7 +67,7 @@ export function ProjectInfo() {
           <ol style={{ ...pStyle, paddingLeft: 20, margin: "12px 0 12px" }}>
             <li style={{ marginBottom: 10 }}>
               <strong style={{ color: "var(--text-primary)" }}>Training</strong>{" "}
-              — a 50-dimensional vector ("embedding") was learned for every
+               : a 50-dimensional vector ("embedding") was learned for every
               word, based on which words tended to appear near each other in
               the training text.
             </li>
@@ -75,17 +75,17 @@ export function ProjectInfo() {
               <strong style={{ color: "var(--text-primary)" }}>
                 Dimensionality reduction
               </strong>{" "}
-              — those 50-dimensional vectors were compressed down to 2D using
+              : those 50-dimensional vectors were compressed down to 2D using
               t-SNE, a technique designed to keep similar vectors visually
               close together.
             </li>
             <li>
               <strong style={{ color: "var(--text-primary)" }}>Rendering</strong> —
-              each word is plotted at its resulting (x, y) position.
+              : each word is plotted at its resulting (x, y) position.
             </li>
           </ol>
           <p style={pStyle}>
-            Words positioned close together were considered similar by the
+           Words positioned close together were considered similar by the
             model — meaning they tended to occur in similar contexts
             throughout the training text.
           </p>

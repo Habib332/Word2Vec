@@ -58,7 +58,7 @@ export function AboutCreatorsPage() {
           }}
         >
           The Word2Vec Visualizer was built by two people who wanted to stop
-          treating word embeddings as a black box — so they trained one from
+          treating word embeddings as a black box so they trained one from
           scratch, then built a way to actually see what it had learned.
         </p>
 
@@ -82,7 +82,7 @@ export function AboutCreatorsPage() {
           <p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--text-secondary)", margin: "0 0 22px" }}>
             Word2Vec Visualizer is a from-scratch implementation of Skip-Gram
             with Negative Sampling, trained on real Wikipedia text (text8)
-            using nothing but Python and NumPy — no PyTorch, TensorFlow, or
+            using nothing but Python and NumPy, no PyTorch, TensorFlow, or
             Gensim. Every 50-dimensional embedding is reduced to 2D with
             t-SNE and rendered here as an explorable vector map, so you can
             see which words the model learned to place close together.
