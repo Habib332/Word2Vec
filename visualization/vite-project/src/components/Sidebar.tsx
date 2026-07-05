@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ExploreIcon, ExportIcon, GearIcon, InfoIcon, LogoMark, TeamIcon } from "./Icons";
+import { ExploreIcon, InfoIcon, LogoMark, TeamIcon } from "./Icons";
 
 type Page = "explore" | "project-info" | "creators";
 
