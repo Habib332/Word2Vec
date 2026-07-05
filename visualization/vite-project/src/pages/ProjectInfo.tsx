@@ -81,7 +81,7 @@ export function ProjectInfo() {
 
             <Section title="What This Is">
               <p style={pStyle}>
-                This ia an implementation of Word2Vec (Skip-Gram with Negative
+                This is an implementation of Word2Vec (Skip-Gram with Negative
                 Sampling) built entirely from scratch using Python and
                 NumPy with no machine learning libraries like PyTorch,
                 TensorFlow, or Gensim. Based on Mikolov et al.'s 2013 paper,{" "}

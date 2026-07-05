@@ -70,7 +70,7 @@ def export_for_visualization(coords_2d, id_to_word, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(points, f, ensure_ascii=False, indent=2)
 
-    os.makedirs(os.path.dirname("C:/Users/HP/Desktop/Word2Vec/visualization/vite-project/public"), exist_ok=True)
+    os.makedirs(os.path.dirname("../visualization/vite-project/public"), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(points, f, ensure_ascii=False, indent=2)
     print(f"Exported {len(points)} points to: {output_path}")
